@@ -1,5 +1,6 @@
 ## app.R ##
 Sys.setenv(GL_AUTH = "google_authorization.json")
+library(animation) #need for ffmpeg
 library(shiny)
 library(shinyjs)
 library(shinydashboard)
@@ -12,6 +13,13 @@ library(grid)
 library(gridExtra)
 library(png)
 
+ari::ffmpeg_exec()
+x = ari::ffmpeg_audio_codecs()
+x = x[ x$encoding_supported, ]
+cat(file=stderr(), paste(x$codec, collapse = "\n"))
+cat(file=stderr(), paste(x$codec_name, collapse = "\n"))
+
+ari::set_audio_codec("ac3")
 
 is_language_auth = function() {
     inherits(googleAuthR::Authentication$public_fields$token, "Token")
@@ -135,7 +143,8 @@ run_ari = function(result,
         paragraphs = result$script,
         divisible_height = divisible_height,
         service = service,
-        voice = voice)
+        voice = voice,
+        verbose = 2)
     return(video)
 }
 
