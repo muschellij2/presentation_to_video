@@ -1,4 +1,5 @@
 ## app.R ##
+Sys.setenv(GL_AUTH = "google_authorization.json")
 library(shiny)
 library(shinydashboard)
 library(ari)
@@ -8,6 +9,7 @@ library(googleLanguageR)
 library(grid)
 library(png)
 library(shinyjs)
+
 
 is_language_auth = function() {
     inherits(googleAuthR::Authentication$public_fields$token, "Token")
@@ -22,7 +24,6 @@ check_gl_auth = function() {
     }
     is_language_auth()
 }
-check_gl_auth()
 
 pptx_mime_type = function() {
     paste0(
@@ -31,6 +32,9 @@ pptx_mime_type = function() {
         ".presentationml.presentation")
 }
 
+##############################
+# User Interface
+##############################
 ui <- dashboardPage(
     dashboardHeader(title = "Convert a Presentation to a Video"),
     ## Sidebar content
@@ -103,6 +107,9 @@ ui <- dashboardPage(
     )
 )
 
+##############################
+# create thumbnails
+##############################
 thumbnail_args = function(res, max_seq = 9) {
     images = res$images
     max_seq = min(length(images), max_seq)
@@ -115,6 +122,9 @@ thumbnail_args = function(res, max_seq = 9) {
     return(args)
 }
 
+##############################
+# run ari
+##############################
 run_ari = function(result, 
                    divisible_height = TRUE,
                    voice = "en-US-Standard-B", service = "google") {
@@ -126,6 +136,10 @@ run_ari = function(result,
         voice = voice)
     return(video)
 }
+
+##############################
+# full server
+##############################
 server <- function(input, output) {
     
     output$gs_thumbnail <- renderPlot({
