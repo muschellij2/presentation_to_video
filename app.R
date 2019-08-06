@@ -72,7 +72,10 @@ ui <- dashboardPage(
                     box(plotOutput("gs_thumbnail", height = 250)),
                     box(
                         title = "Inputs",
-                        textInput("gs_id", "Google Slide ID (e.g. 1Opt6lv7rRi7Kzb9bI0u3SWX1pSz1k7botaphTuFYgNs )")
+                        textInput("gs_id", paste0(
+                            "Google Slide ID ", "(e.g. ", 
+                            "1Opt6lv7rRi7Kzb9bI0u3SWX1pSz1k7botaphTuFYgNs )")
+                        )
                     ),
                     box(
                         title = "Render Video",
