@@ -1,14 +1,16 @@
 ## app.R ##
 Sys.setenv(GL_AUTH = "google_authorization.json")
 library(shiny)
+library(shinyjs)
 library(shinydashboard)
+library(text2speech)
 library(ari)
 library(ariExtra)
 library(googleAuthR)
 library(googleLanguageR)
 library(grid)
+library(gridExtra)
 library(png)
-library(shinyjs)
 
 
 is_language_auth = function() {
