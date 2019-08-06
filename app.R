@@ -145,6 +145,14 @@ run_ari = function(result,
         service = service,
         voice = voice,
         verbose = 2)
+    if (!video) {
+        warning(
+            paste0(
+                "Video doesn't seem to have generated correctly,",
+                " look at logs"
+            )
+        )
+    }
     return(video)
 }
 
