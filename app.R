@@ -1,5 +1,6 @@
 ## app.R ##
-Sys.setenv(GL_AUTH = "google_authorization.json")
+auth_file ="google_authorization.json"
+Sys.setenv(GL_AUTH = auth_file)
 library(animation) #need for ffmpeg
 library(shiny)
 library(shinyjs)
@@ -20,8 +21,8 @@ source("libreoffice_checks.R")
 ari::ffmpeg_exec()
 x = ari::ffmpeg_audio_codecs()
 x = x[ x$encoding_supported, ]
-cat(file = stderr(), paste(x$codec, collapse = "\n"))
-cat(file = stderr(), paste(x$codec_name, collapse = "\n"))
+# cat(file = stderr(), paste(x$codec, collapse = "\n"))
+# cat(file = stderr(), paste(x$codec_name, collapse = "\n"))
 
 ari::set_audio_codec("ac3")
 
@@ -30,8 +31,9 @@ is_language_auth = function() {
 }
 check_gl_auth = function() {
     if (!is_language_auth()) {
-        needed <- c("https://www.googleapis.com/auth/cloud-language",
-                    "https://www.googleapis.com/auth/cloud-platform")
+        needed <- c(
+            "https://www.googleapis.com/auth/cloud-language",
+            "https://www.googleapis.com/auth/cloud-platform")
         
         googleAuthR::gar_attach_auto_auth(needed,
                                           environment_var = "GL_AUTH")
@@ -104,7 +106,7 @@ ui <- dashboardPage(
                     box(
                         title = "Inputs",
                         fileInput("pptx_input", "PowerPoint File",
-                                  accept = pptx_mime_type(),
+                                  # accept = pptx_mime_type(),
                                   multiple = FALSE)
                     ),
                     box(
@@ -172,15 +174,17 @@ server <- function(input, output) {
         validate(
             need(input$gs_id, "Need Google Slide ID")
         )
-        gs_id = input$gs_id
-        # x = text2speech::tts_google_voices()
-        
-        gs_ari_result <<- gs_to_ari(
-            gs_id, 
-            open = FALSE)
-        args = thumbnail_args(gs_ari_result)
-        shinyjs::enable("gs_render")
-        do.call(gridExtra::grid.arrange, args = args)
+        if (!is.null(input$gs_id)) {
+            gs_id = input$gs_id
+            # x = text2speech::tts_google_voices()
+            
+            gs_ari_result <<- gs_to_ari(
+                gs_id, 
+                open = FALSE)
+            args = thumbnail_args(gs_ari_result)
+            shinyjs::enable("gs_render")
+            do.call(gridExtra::grid.arrange, args = args)
+        }
     })
     
     
@@ -189,9 +193,20 @@ server <- function(input, output) {
             need(input$pptx_input, "Need PowerPoint file")
         )
         pptx_input = input$pptx_input
-        # print(input$pptx_input)
+        print(input$pptx_input)
+        cat(file = stderr(), paste("input name: ", 
+                                   input$pptx_input$name, "\n"))
+        cat(file = stderr(), paste("input path: ", 
+                                   input$pptx_input$datapath, "\n"))
+        cat(file = stderr(), paste("input type: ", 
+                                   input$pptx_input$type, "\n"))
+        datapath = pptx_input$datapath
+        if (tools::file_ext(tolower(pptx_input$name)) == "zip") {
+            datapath = unzip(zipfile = datapath, exdir = tempdir())
+            datapath = datapath[1]
+        }
         pptx_ari_result <<- pptx_to_ari(
-            path = pptx_input$datapath, 
+            path = datapath,
             open = FALSE)
         args = thumbnail_args(pptx_ari_result)
         shinyjs::enable("pptx_render")
@@ -203,10 +218,15 @@ server <- function(input, output) {
         if (!exists("pptx_ari_result")) {
             validate(
                 need(input$pptx_input, "Need PowerPoint file")
-            )            
+            )     
+            datapath = input$pptx_input$datapath
+            if (tools::file_ext(tolower(pptx_input$name)) == "zip") {
+                datapath = unzip(zipfile = datapath, exdir = tempdir())
+                datapath = datapath[1]
+            }
             pptx_ari_result <<- pptx_to_ari(
-                path = pptx_input$datapath, 
-                open = FALSE)
+                path = datapath,
+                open = FALSE)            
         }
         video = run_ari(pptx_ari_result, 
                         voice = input$voice,
@@ -255,7 +275,7 @@ server <- function(input, output) {
         filename = function() {
             name = paste0(
                 "pptx_", 
-                input$pptx_input$name,
+                sub(".pptx.*", "", tolower(input$pptx_input$name)),
                 "_",
                 input$voice,
                 "_",
