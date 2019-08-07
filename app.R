@@ -3,6 +3,7 @@ Sys.setenv(GL_AUTH = "google_authorization.json")
 library(animation) #need for ffmpeg
 library(shiny)
 library(shinyjs)
+library(docxtractr)
 library(shinydashboard)
 library(text2speech)
 library(ari)
@@ -12,12 +13,15 @@ library(googleLanguageR)
 library(grid)
 library(gridExtra)
 library(png)
+library(googledrive)
+
+source("libreoffice_checks.R")
 
 ari::ffmpeg_exec()
 x = ari::ffmpeg_audio_codecs()
 x = x[ x$encoding_supported, ]
-cat(file=stderr(), paste(x$codec, collapse = "\n"))
-cat(file=stderr(), paste(x$codec_name, collapse = "\n"))
+cat(file = stderr(), paste(x$codec, collapse = "\n"))
+cat(file = stderr(), paste(x$codec_name, collapse = "\n"))
 
 ari::set_audio_codec("ac3")
 
