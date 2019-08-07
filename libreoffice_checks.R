@@ -4,7 +4,7 @@ if (file.exists(token_file)) {
   token = readRDS(token_file)
 }
 have_libreoffice = function() {
-  x = try({docxtractr:::lo_assert})
+  x = try({docxtractr:::lo_assert()}, silent = TRUE)
   !inherits(x, "try-error")
 }
 temp_pptx_to_ari = function(path, ...) {
