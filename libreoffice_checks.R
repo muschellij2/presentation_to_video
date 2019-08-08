@@ -20,7 +20,10 @@ temp_pptx_to_ari = function(path, ...) {
   googledrive::drive_rm(tbl_df)
   return(result)
 }
-
+if (have_libreoffice()) {
+  cat(file = stderr(), 
+      paste0("libreoffice found!\n"))
+}
 if (!have_libreoffice() && !is.null(token)) {
   cat(file = stderr(), 
       paste0("Using Google Slides workaround ",
