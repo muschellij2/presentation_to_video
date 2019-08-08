@@ -24,7 +24,7 @@ x = x[ x$encoding_supported, ]
 # cat(file = stderr(), paste(x$codec, collapse = "\n"))
 # cat(file = stderr(), paste(x$codec_name, collapse = "\n"))
 
-ari::set_audio_codec("ac3")
+ari::set_audio_codec("aac")
 
 is_language_auth = function() {
     inherits(googleAuthR::Authentication$public_fields$token, "Token")
