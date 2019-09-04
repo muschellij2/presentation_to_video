@@ -105,9 +105,16 @@ ui <- dashboardPage(
                     box(plotOutput("pptx_thumbnail", height = 250)),
                     box(
                         title = "Inputs",
-                        fileInput("pptx_input", "PowerPoint File",
-                                  # accept = pptx_mime_type(),
-                                  multiple = FALSE)
+                        fileInput(
+                            "pptx_input", 
+                            HTML(paste0(
+                                "PowerPoint File<br> There is a ", 
+                                '<a href = "https://community.rstudio.com/t/shinyapps-io-lua-errors-with-pptx/36944">bug</a>',
+                                " uploading PPTX files to shinyapps.io, ", 
+                                "so please zip your file (extension ", 
+                                ".zip) and upload")),
+                            # accept = pptx_mime_type(),
+                            multiple = FALSE)
                     ),
                     box(
                         title = "Render Video",
@@ -180,7 +187,9 @@ server <- function(input, output) {
             
             gs_ari_result <<- gs_to_ari(
                 gs_id, 
-                open = FALSE)
+                open = FALSE, 
+                verbose = 2)
+            cat(file = stderr(), paste("Creating Thumbnails"))
             args = thumbnail_args(gs_ari_result)
             shinyjs::enable("gs_render")
             do.call(gridExtra::grid.arrange, args = args)
@@ -207,7 +216,9 @@ server <- function(input, output) {
         }
         pptx_ari_result <<- pptx_to_ari(
             path = datapath,
-            open = FALSE)
+            open = FALSE, 
+            verbose = 2)
+        cat(file = stderr(), paste("Creating Thumbnails"))
         args = thumbnail_args(pptx_ari_result)
         shinyjs::enable("pptx_render")
         
@@ -292,3 +303,4 @@ server <- function(input, output) {
 }
 
 shinyApp(ui, server)
+

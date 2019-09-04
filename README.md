@@ -94,17 +94,25 @@ available, you can run `text2speech::tts_voices(service)`, where
 voices = text2speech::tts_voices(service = "google")
 voices = voices[ voices$language == "English (US)", ]
 voices
-#>               voice     language language_code gender service
-#> 41  en-US-Wavenet-B English (US)         en-US   MALE  google
-#> 42  en-US-Wavenet-F English (US)         en-US FEMALE  google
-#> 43 en-US-Standard-B English (US)         en-US   MALE  google
-#> 44 en-US-Standard-D English (US)         en-US   MALE  google
-#> 45 en-US-Standard-E English (US)         en-US FEMALE  google
-#> 46 en-US-Standard-C English (US)         en-US FEMALE  google
-#> 47  en-US-Wavenet-E English (US)         en-US FEMALE  google
-#> 48  en-US-Wavenet-A English (US)         en-US   MALE  google
-#> 49  en-US-Wavenet-C English (US)         en-US FEMALE  google
-#> 50  en-US-Wavenet-D English (US)         en-US   MALE  google
+#>                 voice     language language_code gender service
+#> NA               <NA>         <NA>          <NA>   <NA>    <NA>
+#> NA.1             <NA>         <NA>          <NA>   <NA>    <NA>
+#> NA.2             <NA>         <NA>          <NA>   <NA>    <NA>
+#> NA.3             <NA>         <NA>          <NA>   <NA>    <NA>
+#> NA.4             <NA>         <NA>          <NA>   <NA>    <NA>
+#> NA.5             <NA>         <NA>          <NA>   <NA>    <NA>
+#> NA.6             <NA>         <NA>          <NA>   <NA>    <NA>
+#> NA.7             <NA>         <NA>          <NA>   <NA>    <NA>
+#> 49   en-US-Standard-B English (US)         en-US   MALE  google
+#> 50   en-US-Standard-C English (US)         en-US FEMALE  google
+#> 51    en-US-Wavenet-F English (US)         en-US FEMALE  google
+#> 52    en-US-Wavenet-A English (US)         en-US   MALE  google
+#> 53   en-US-Standard-D English (US)         en-US   MALE  google
+#> 54    en-US-Wavenet-D English (US)         en-US   MALE  google
+#> 55   en-US-Standard-E English (US)         en-US FEMALE  google
+#> 56    en-US-Wavenet-E English (US)         en-US FEMALE  google
+#> 57    en-US-Wavenet-C English (US)         en-US FEMALE  google
+#> 58    en-US-Wavenet-B English (US)         en-US   MALE  google
 ```
 
 For Google, there are standard or
@@ -121,13 +129,14 @@ CRAN:
 
 |                 | package         | ondiskversion | loadedversion | path                                                                           | loadedpath                                                                     | attached | is\_base | date       | source                                      | md5ok | library                                                        |
 | --------------- | :-------------- | :------------ | :------------ | :----------------------------------------------------------------------------- | :----------------------------------------------------------------------------- | :------- | :------- | :--------- | :------------------------------------------ | :---- | :------------------------------------------------------------- |
-| ari             | ari             | 0.3.1.9002    | NA            | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/ari             | NA                                                                             | FALSE    | FALSE    | 2019-08-08 | local                                       | NA    | /Library/Frameworks/R.framework/Versions/3.6/Resources/library |
-| ariExtra        | ariExtra        | 0.2.1         | NA            | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/ariExtra        | NA                                                                             | FALSE    | FALSE    | 2019-08-06 | Github (<muschellij2/ariExtra@ef770cc>)     | NA    | /Library/Frameworks/R.framework/Versions/3.6/Resources/library |
+| ari             | ari             | 0.3.2         | NA            | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/ari             | NA                                                                             | FALSE    | FALSE    | 2019-08-13 | local                                       | NA    | /Library/Frameworks/R.framework/Versions/3.6/Resources/library |
+| ariExtra        | ariExtra        | 0.2.3         | NA            | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/ariExtra        | NA                                                                             | FALSE    | FALSE    | 2019-09-04 | local                                       | NA    | /Library/Frameworks/R.framework/Versions/3.6/Resources/library |
+| aws.polly       | aws.polly       | 0.1.6         | NA            | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/aws.polly       | NA                                                                             | FALSE    | FALSE    | 2019-08-15 | local                                       | NA    | /Library/Frameworks/R.framework/Versions/3.6/Resources/library |
 | docxtractr      | docxtractr      | 0.6.2         | NA            | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/docxtractr      | NA                                                                             | FALSE    | FALSE    | 2019-08-07 | Github (<hrbrmstr/docxtractr@7cb823d>)      | NA    | /Library/Frameworks/R.framework/Versions/3.6/Resources/library |
 | googledrive     | googledrive     | 1.0.0         | NA            | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/googledrive     | NA                                                                             | FALSE    | FALSE    | 2019-08-07 | Github (<tidyverse/googledrive@82768bd>)    | NA    | /Library/Frameworks/R.framework/Versions/3.6/Resources/library |
 | googleLanguageR | googleLanguageR | 0.2.0.9001    | 0.2.0.9001    | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/googleLanguageR | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/googleLanguageR | TRUE     | FALSE    | 2019-08-07 | Github (<ropensci/googleLanguageR@2b4dc88>) | NA    | /Library/Frameworks/R.framework/Versions/3.6/Resources/library |
+| knitr           | knitr           | 1.24.3        | 1.24.3        | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/knitr           | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/knitr           | FALSE    | FALSE    | 2019-08-28 | Github (<muschellij2/knitr@abcea3d>)        | NA    | /Library/Frameworks/R.framework/Versions/3.6/Resources/library |
 | later           | later           | 0.8.0.9003    | NA            | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/later           | NA                                                                             | FALSE    | FALSE    | 2019-08-07 | Github (<r-lib/later@ae297fa>)              | NA    | /Library/Frameworks/R.framework/Versions/3.6/Resources/library |
 | mscstts         | mscstts         | 0.5.2         | NA            | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/mscstts         | NA                                                                             | FALSE    | FALSE    | 2019-08-06 | Github (<muschellij2/mscstts@226bfef>)      | NA    | /Library/Frameworks/R.framework/Versions/3.6/Resources/library |
 | promises        | promises        | 1.0.1.9002    | NA            | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/promises        | NA                                                                             | FALSE    | FALSE    | 2019-08-07 | Github (<rstudio/promises@9ebad6d>)         | NA    | /Library/Frameworks/R.framework/Versions/3.6/Resources/library |
-| rdom            | rdom            | 0.0.3.9001    | NA            | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/rdom            | NA                                                                             | FALSE    | FALSE    | 2019-08-01 | Github (<cpsievert/rdom@73f63ac>)           | NA    | /Library/Frameworks/R.framework/Versions/3.6/Resources/library |
-| text2speech     | text2speech     | 0.2.6         | 0.2.6         | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/text2speech     | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/text2speech     | FALSE    | FALSE    | 2019-08-06 | Github (<muschellij2/text2speech@8a12e46>)  | NA    | /Library/Frameworks/R.framework/Versions/3.6/Resources/library |
+| text2speech     | text2speech     | 0.2.7         | 0.2.7         | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/text2speech     | /Library/Frameworks/R.framework/Versions/3.6/Resources/library/text2speech     | FALSE    | FALSE    | 2019-08-15 | local                                       | NA    | /Library/Frameworks/R.framework/Versions/3.6/Resources/library |

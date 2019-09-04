@@ -11,6 +11,8 @@ knitr::opts_chunk$set(
 )
 library(googleLanguageR)
 ```
+
+
 # presentation_to_video: A Shiny Application
 
 <!-- badges: start -->
@@ -71,6 +73,7 @@ voices = voices[ voices$language == "English (US)", ]
 voices
 ```
 
+
 For Google, there are standard or [`WaveNet`](https://cloud.google.com/text-to-speech/docs/wavenet) (a neural network) voices.  The WaveNet voices tend to sound more natural, but are more expensive to render.  You can hear the voices at https://cloud.google.com/text-to-speech/docs/voices.
 
 
@@ -95,6 +98,8 @@ pkgs = c(
   "googledrive"
 )
 ```
+
+
 
 ```{r, echo = FALSE}
 x = sessioninfo::session_info(pkgs = pkgs)
