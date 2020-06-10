@@ -48,6 +48,11 @@ pptx_mime_type = function() {
         ".presentationml.presentation")
 }
 
+# need these for rechecks
+gs_id = ""
+pptx_input_name = ""
+
+
 ##############################
 # User Interface
 ##############################
@@ -61,10 +66,14 @@ ui <- dashboardPage(
             selectInput("service", label = "Voice Service", 
                         choices = c("google", "amazon", "microsoft"),
                         selected = "google"),
+            checkboxInput("show_thumbnails", label = "Show thumbnails of slides",
+                          value = FALSE),
             textInput("voice", label = "Voice to use", value = 
                           "en-US-Standard-B"),
             menuItem("Google Slide", tabName = "gs", icon = icon("google-drive")),
-            menuItem("PowerPoint", tabName = "pptx", icon = icon("file-powerpoint"))
+            menuItem("PowerPoint", tabName = "pptx", icon = icon("file-powerpoint")),
+            actionButton("clear_results", "Clear Previous Results",
+                         icon = icon("trash"))
         )
     ),
     
@@ -93,7 +102,14 @@ ui <- dashboardPage(
                             downloadButton("gs_download", "Download Video",
                                            icon = icon("download"))
                         )
-                    )
+                    ),
+                    box(
+                        HTML(
+                            paste0(
+                                "If any errors occur, please see the JavaScript log"
+                            )
+                        )
+                    )                    
                     
                 )
             ),
@@ -126,7 +142,14 @@ ui <- dashboardPage(
                             downloadButton("pptx_download", "Download Video",
                                            icon = icon("download"))
                         )
-                    )                    
+                    ),
+                    box(
+                        HTML(
+                            paste0(
+                                "If any errors occur, please see the JavaScript log"
+                            )
+                        )
+                    )
                 )
             )
         )
@@ -136,7 +159,7 @@ ui <- dashboardPage(
 ##############################
 # create thumbnails
 ##############################
-thumbnail_args = function(res, max_seq = 9) {
+thumbnail_args = function(res, max_seq = 4) {
     images = res$images
     max_seq = min(length(images), max_seq)
     images = images[seq(max_seq)]
@@ -144,7 +167,7 @@ thumbnail_args = function(res, max_seq = 9) {
         grid::rasterGrob(as.raster(
             png::readPNG(img)), interpolate = FALSE)
     })
-    args$ncol = 3
+    args$ncol = floor(sqrt(max_seq))
     return(args)
 }
 
@@ -176,53 +199,107 @@ run_ari = function(result,
 # full server
 ##############################
 server <- function(input, output) {
+    cat_and_log = function(msg) {
+        shinyjs::logjs(msg)
+        cat(file = stderr(), msg)
+    }
+    
+    
+    if (have_libreoffice()) {
+        cat_and_log("libreoffice found!\n")
+    }
+    if (!have_libreoffice() && !is.null(token)) {
+        cat_and_log(
+            paste0("Using Google Slides workaround ",
+                   "- no libreoffice\n"))
+    }
     
     output$gs_thumbnail <- renderPlot({
         validate(
             need(input$gs_id, "Need Google Slide ID")
         )
         if (!is.null(input$gs_id)) {
-            gs_id = input$gs_id
-            # x = text2speech::tts_google_voices()
+            if (!exists("gs_ari_result") || input$gs_id != gs_id) {
+                gs_id <<- input$gs_id
+                # x = text2speech::tts_google_voices()
+                cat_and_log("Running gs_to_ari")
+                withCallingHandlers(
+                    {            
+                        gs_ari_result <<- gs_to_ari(
+                            gs_id, 
+                            open = FALSE, 
+                            verbose = 2)
+                    },
+                    message = function(m) {
+                        shinyjs::logjs(m$message)
+                    }
+                ) 
+            }
             
-            gs_ari_result <<- gs_to_ari(
-                gs_id, 
-                open = FALSE, 
-                verbose = 2)
-            cat(file = stderr(), paste("Creating Thumbnails"))
-            args = thumbnail_args(gs_ari_result)
+            if (input$show_thumbnails) {
+                cat_and_log("Creating Thumbnails\n")
+                args = thumbnail_args(gs_ari_result)
+            }
+            cat_and_log("Render video should be enabled!\n")
             shinyjs::enable("gs_render")
-            do.call(gridExtra::grid.arrange, args = args)
+            if (input$show_thumbnails) {            
+                do.call(gridExtra::grid.arrange, args = args)
+            } else {
+                NULL
+            }
         }
     })
     
-    
     output$pptx_thumbnail <- renderPlot({
         validate(
-            need(input$pptx_input, "Need PowerPoint file")
+            need(input$pptx_input, "Need PowerPoint file"),
+            need(input$pptx_input$name, "")
         )
-        pptx_input = input$pptx_input
-        print(input$pptx_input)
-        cat(file = stderr(), paste("input name: ", 
-                                   input$pptx_input$name, "\n"))
-        cat(file = stderr(), paste("input path: ", 
-                                   input$pptx_input$datapath, "\n"))
-        cat(file = stderr(), paste("input type: ", 
-                                   input$pptx_input$type, "\n"))
-        datapath = pptx_input$datapath
-        if (tools::file_ext(tolower(pptx_input$name)) == "zip") {
-            datapath = unzip(zipfile = datapath, exdir = tempdir())
-            datapath = datapath[1]
+        if (!exists("pptx_ari_result") || 
+            input$pptx_input$name != pptx_input_name) {
+            
+            pptx_input = input$pptx_input
+            print(input$pptx_input)
+            pptx_input_name <<- input$pptx_input$name
+            msg = paste("input name: ", 
+                        input$pptx_input$name, "\n")
+            cat_and_log(msg)
+            msg = paste("input path: ", 
+                        input$pptx_input$datapath, "\n")
+            cat_and_log(msg)
+            msg = paste("input type: ", 
+                        input$pptx_input$type, "\n")
+            cat_and_log(msg)
+            
+            datapath = pptx_input$datapath
+            if (tools::file_ext(tolower(pptx_input$name)) == "zip") {
+                datapath = unzip(zipfile = datapath, exdir = tempdir())
+                datapath = datapath[1]
+            }
+            cat_and_log("Running pptx_to_ari")
+            withCallingHandlers(
+                {            
+                    pptx_ari_result <<- pptx_to_ari(
+                        path = datapath,
+                        open = FALSE, 
+                        verbose = 2)
+                },
+                message = function(m) {
+                    shinyjs::logjs(m$message)
+                }
+            )        
         }
-        pptx_ari_result <<- pptx_to_ari(
-            path = datapath,
-            open = FALSE, 
-            verbose = 2)
-        cat(file = stderr(), paste("Creating Thumbnails"))
-        args = thumbnail_args(pptx_ari_result)
+        if (input$show_thumbnails) {
+            cat_and_log("Creating Thumbnails\n")
+            args = thumbnail_args(pptx_ari_result)
+        }        
+        cat_and_log("Render video should be enabled!\n")
         shinyjs::enable("pptx_render")
-        
-        do.call(gridExtra::grid.arrange, args = args)  
+        if (input$show_thumbnails) { 
+            do.call(gridExtra::grid.arrange, args = args)  
+        } else {
+            NULL
+        }
     })
     
     observeEvent(input$pptx_render, {
@@ -239,11 +316,36 @@ server <- function(input, output) {
                 path = datapath,
                 open = FALSE)            
         }
-        video = run_ari(pptx_ari_result, 
-                        voice = input$voice,
-                        service = input$service)
+        cat_and_log("Running ari for PPTX")
+        withCallingHandlers(
+            {            
+                video = run_ari(pptx_ari_result, 
+                                voice = input$voice,
+                                service = input$service)
+            },
+            message = function(m) {
+                shinyjs::logjs(m$message)
+            },
+            warning = function(w) {
+                shinyjs::logjs(w$message)
+            }            
+        )             
         shinyjs::enable("pptx_download")
         pptx_video <<- attr(video, "outfile")
+    })
+    
+    observeEvent(input$clear_results, {
+        rm(
+            list = c("gs_ari_result", "pptx_ari_result",
+                     "gs_video", "pptx_video")
+        )   
+        gs_id <<- ""
+        pptx_input_name <<- ""
+        shinyjs::disable("gs_download") 
+        shinyjs::disable("gs_render")
+        shinyjs::disable("pptx_download") 
+        shinyjs::disable("pptx_render")        
+        enable
     })
     
     observeEvent(input$gs_render, {
@@ -255,9 +357,20 @@ server <- function(input, output) {
                 input$gs_id, 
                 open = FALSE)
         }
-        video = run_ari(gs_ari_result, 
-                        voice = input$voice,
-                        service = input$service)
+        cat_and_log("Running ari for GS")
+        withCallingHandlers(
+            {            
+                video = run_ari(gs_ari_result, 
+                                voice = input$voice,
+                                service = input$service)
+            },
+            message = function(m) {
+                shinyjs::logjs(m$message)
+            },
+            warning = function(w) {
+                shinyjs::logjs(w$message)
+            }            
+        )            
         shinyjs::enable("gs_download") 
         gs_video <<- attr(video, "outfile")
     })
@@ -275,6 +388,7 @@ server <- function(input, output) {
                 "_",
                 input$service,
                 ".mp4")
+            cat_and_log(paste0("output file is ", name))
             return(name)
         },
         content = function(output) {
@@ -284,14 +398,17 @@ server <- function(input, output) {
     
     output$pptx_download <- downloadHandler(
         filename = function() {
+            name = sub(".pptx.*", "", tolower(input$pptx_input$name))
+            name = sub("[.]zip$", "", name)
             name = paste0(
                 "pptx_", 
-                sub(".pptx.*", "", tolower(input$pptx_input$name)),
+                name,
                 "_",
                 input$voice,
                 "_",
                 input$service,
                 ".mp4")
+            cat_and_log(paste0("output file is ", name))
             name
         },
         content = function(output) {
@@ -303,4 +420,5 @@ server <- function(input, output) {
 }
 
 shinyApp(ui, server)
+
 
