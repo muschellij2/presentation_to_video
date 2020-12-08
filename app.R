@@ -219,8 +219,8 @@ server <- function(input, output) {
             need(input$gs_id, "Need Google Slide ID")
         )
         if (!is.null(input$gs_id)) {
-            if (!exists("gs_ari_result") || input$gs_id != gs_id) {
-                gs_id <<- input$gs_id
+            if (!exists("gs_ari_result") || trimws(input$gs_id) != gs_id) {
+                gs_id <<- trimws(input$gs_id)
                 # x = text2speech::tts_google_voices()
                 cat_and_log("Running gs_to_ari")
                 withCallingHandlers(
