@@ -18,6 +18,8 @@ library(googledrive)
 
 source("libreoffice_checks.R")
 
+stopifnot(text2speech::tts_auth("google"))
+
 ari::ffmpeg_exec()
 x = ari::ffmpeg_audio_codecs()
 x = x[ x$encoding_supported, ]
@@ -382,7 +384,7 @@ server <- function(input, output) {
         filename = function() {
             name = paste0(
                 "gs_", 
-                input$gs_id,
+                id = get_slide_id(input$gs_id),
                 "_",
                 input$voice,
                 "_",
