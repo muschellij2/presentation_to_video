@@ -86,7 +86,7 @@ ui <- dashboardPage(
             tabItem(
                 tabName = "gs",
                 fluidRow(
-                    box(plotOutput("gs_thumbnail", height = 250)),
+                    box(h2("Thumbnails"), plotOutput("gs_thumbnail", height = 250)),
                     box(
                         title = "Inputs",
                         textInput("gs_id", paste0(
@@ -105,13 +105,18 @@ ui <- dashboardPage(
                                            icon = icon("download"))
                         )
                     ),
+                    box(h2("Extracted Script"),
+                        uiOutput("gs_script")),
                     box(
                         HTML(
                             paste0(
-                                "If any errors occur, please see the JavaScript log"
-                            )
+                                "If any errors occur, please see the JavaScript log",
+                                " see "
+                            ),
+                            as.character(tags$a("how to use the log",
+                                                href = "https://developers.google.com/web/tools/chrome-devtools/console/log"))
                         )
-                    )                    
+                    )     
                     
                 )
             ),
@@ -120,7 +125,7 @@ ui <- dashboardPage(
             tabItem(
                 tabName = "pptx",
                 fluidRow(
-                    box(plotOutput("pptx_thumbnail", height = 250)),
+                    box(h2("Thumbnails"), plotOutput("pptx_thumbnail", height = 250)),
                     box(
                         title = "Inputs",
                         fileInput(
@@ -145,6 +150,8 @@ ui <- dashboardPage(
                                            icon = icon("download"))
                         )
                     ),
+                    box(h2("Extracted Script"),
+                        uiOutput("gs_script")),
                     box(
                         HTML(
                             paste0(
@@ -251,6 +258,24 @@ server <- function(input, output) {
             }
         }
     })
+    output$gs_script <- renderUI({
+        validate(
+            need(input$gs_id, "Need Google Slide ID")
+        )
+        if (!is.null(gs_ari_result$script)) {
+            return(
+                HTML(
+                    paste(
+                        paste0(
+                            "(Slide ", 1:length(gs_ari_result$script), ") ",
+                            gs_ari_result$script),
+                        collapse = '<br/><br/>')
+                )
+            )
+        } else {
+            return(HTML(""))
+        }
+    })
     
     output$pptx_thumbnail <- renderPlot({
         validate(
@@ -301,6 +326,25 @@ server <- function(input, output) {
             do.call(gridExtra::grid.arrange, args = args)  
         } else {
             NULL
+        }
+    })
+    
+    output$pptx_script <- renderUI({
+        validate(
+            need(input$gs_id, "NeedP PPTX file")
+        )
+        if (!is.null(pptx_ari_result$script)) {
+            return(
+                HTML(
+                    paste(
+                        paste0(
+                            "(Slide ", 1:length(pptx_ari_result$script), ") ",
+                            pptx_ari_result$script),
+                        collapse = '<br/><br/>')
+                )
+            )
+        } else {
+            return(HTML(""))
         }
     })
     
