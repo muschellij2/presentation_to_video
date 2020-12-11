@@ -151,7 +151,7 @@ ui <- dashboardPage(
                         )
                     ),
                     box(h2("Extracted Script"),
-                        uiOutput("gs_script")),
+                        uiOutput("pptx_script")),
                     box(
                         HTML(
                             paste0(
@@ -262,6 +262,9 @@ server <- function(input, output) {
         validate(
             need(input$gs_id, "Need Google Slide ID")
         )
+        if (is.null(input$gs_id)) {
+            return("")
+        }
         if (!is.null(gs_ari_result$script)) {
             return(
                 HTML(
@@ -303,7 +306,7 @@ server <- function(input, output) {
                 datapath = unzip(zipfile = datapath, exdir = tempdir())
                 datapath = datapath[1]
             }
-            cat_and_log("Running pptx_to_ari")
+            cat_and_log("Running pptx_to_ari\n")
             withCallingHandlers(
                 {            
                     pptx_ari_result <<- pptx_to_ari(
@@ -331,8 +334,12 @@ server <- function(input, output) {
     
     output$pptx_script <- renderUI({
         validate(
-            need(input$gs_id, "NeedP PPTX file")
+            need(input$pptx_input, "Need PowerPoint file"),
+            need(input$pptx_input$name, "")
         )
+        if (is.null(input$pptx_input)) {
+            return("")
+        }        
         if (!is.null(pptx_ari_result$script)) {
             return(
                 HTML(
